@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ArrowUpRight } from 'lucide-react';
+import {
+  Menu,
+  X,
+  ArrowUpRight,
+  Home,
+  Briefcase,
+  User,
+  Award,
+  Mail,
+  ChevronRight,
+  ShieldCheck
+} from 'lucide-react';
 import { PORTFOLIO_DATA } from '../data/portfolioData';
 import { WhatsappIcon, LinkedinIcon, GithubIcon } from './SocialIcons';
 
@@ -55,12 +66,12 @@ export const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   const navItems = [
-    { name: 'Home', targetId: 'home' },
-    { name: 'Work', targetId: 'work' },
-    { name: 'About', targetId: 'about' },
-    { name: 'Experience', targetId: 'experience' },
-    { name: 'Certifications', targetId: 'certifications' },
-    { name: 'Contact', targetId: 'contact' },
+    { name: 'Home', targetId: 'home', icon: Home, badge: null },
+    { name: 'Work', targetId: 'work', icon: Briefcase, badge: '3 Projects' },
+    { name: 'About', targetId: 'about', icon: User, badge: null },
+    { name: 'Experience', targetId: 'experience', icon: Award, badge: null },
+    { name: 'Certifications', targetId: 'certifications', icon: ShieldCheck, badge: '12 Verified' },
+    { name: 'Contact', targetId: 'contact', icon: Mail, badge: null },
   ];
 
   const handleNavClick = (targetId: string) => {
@@ -195,7 +206,7 @@ export const Navbar: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="md:hidden p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-surface-subtle active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-accent relative z-50 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="md:hidden p-2.5 rounded-xl text-white bg-surface-subtle/80 border border-surface-border hover:border-accent/60 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-accent relative z-50 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center shadow-md"
           aria-expanded={isOpen}
           aria-label={isOpen ? "Close menu" : "Open menu"}
         >
@@ -210,51 +221,93 @@ export const Navbar: React.FC = () => {
       {/* Mobile & Tablet Full-Screen Drawer Menu */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-black/98 backdrop-blur-2xl border-t border-surface-border p-6 flex flex-col justify-between overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-black/98 backdrop-blur-2xl border-t border-surface-border px-5 py-6 flex flex-col justify-between overflow-y-auto overscroll-contain animate-in fade-in duration-200"
           style={{ height: 'calc(100dvh - 4rem)' }}
         >
-          <nav className="flex flex-col gap-2 pt-2" aria-label="Mobile Navigation">
+          {/* Navigation Section Cards (Ultra High Contrast) */}
+          <nav className="flex flex-col gap-2.5 pt-2" aria-label="Mobile Navigation">
             {navItems.map((item) => {
+              const Icon = item.icon;
               const isActive = activeSection === item.targetId;
               return (
                 <button
                   type="button"
                   key={item.name}
                   onClick={() => handleNavClick(item.targetId)}
-                  className={`text-left text-lg font-semibold tracking-tight transition-all py-3 px-4 rounded-xl border flex items-center justify-between touch-manipulation min-h-[48px] ${
+                  className={`group w-full text-left transition-all py-3.5 px-4 rounded-2xl border flex items-center justify-between touch-manipulation min-h-[56px] shadow-sm ${
                     isActive
-                      ? 'bg-accent/15 border-accent/40 text-accent'
-                      : 'border-transparent text-text-secondary hover:text-white hover:bg-white/5 active:bg-white/10'
+                      ? 'bg-accent/15 border-accent text-accent shadow-[0_0_20px_rgba(189,167,115,0.2)]'
+                      : 'bg-[#121212] border-surface-border text-white hover:border-accent/40 hover:bg-[#181818] active:bg-[#202020]'
                   }`}
                 >
-                  <span>{item.name}</span>
-                  {isActive && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                        isActive
+                          ? 'bg-accent text-black border-accent'
+                          : 'bg-surface-subtle text-accent border-surface-border group-hover:border-accent/50'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span
+                      className={`text-base font-semibold tracking-tight transition-colors ${
+                        isActive ? 'text-accent' : 'text-white group-hover:text-white'
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {item.badge && (
+                      <span
+                        className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                          isActive
+                            ? 'bg-accent text-black border-accent'
+                            : 'bg-surface-subtle text-accent border-accent/30'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform group-hover:translate-x-0.5 ${
+                        isActive ? 'text-accent' : 'text-white/40 group-hover:text-white'
+                      }`}
+                    />
+                  </div>
                 </button>
               );
             })}
+
+            {/* Prominent High-Contrast Resume CTA */}
             <a
               href={PORTFOLIO_DATA.personal.resumePdf}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 mt-4 py-3.5 rounded-xl bg-accent text-black font-semibold text-sm hover:bg-accent-hover transition-colors touch-manipulation min-h-[48px] shadow-[0_0_20px_rgba(189,167,115,0.25)]"
+              className="inline-flex items-center justify-center gap-2 mt-3 py-4 rounded-2xl bg-accent text-black font-bold text-sm hover:bg-accent-hover transition-all touch-manipulation min-h-[52px] shadow-[0_0_25px_rgba(189,167,115,0.35)]"
             >
-              View Resume (PDF) <ArrowUpRight className="w-4 h-4" />
+              <span>View Resume (PDF)</span>
+              <ArrowUpRight className="w-4 h-4" />
             </a>
           </nav>
 
-          <div className="py-5 border-t border-surface-border text-text-muted text-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white font-semibold text-sm">{PORTFOLIO_DATA.personal.name}</p>
-                <p className="text-text-muted text-xs">{PORTFOLIO_DATA.personal.email}</p>
+          {/* Recruiter Quick Connect Card */}
+          <div className="mt-6 pt-5 border-t border-surface-border space-y-3">
+            <div className="p-4 rounded-2xl bg-[#121212] border border-surface-border flex items-center justify-between">
+              <div className="min-w-0 pr-2">
+                <p className="text-white font-semibold text-sm truncate">{PORTFOLIO_DATA.personal.name}</p>
+                <p className="text-accent text-xs font-mono truncate">{PORTFOLIO_DATA.personal.email}</p>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 shrink-0">
                 <a
                   href={PORTFOLIO_DATA.personal.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/30 hover:bg-[#25D366] hover:text-black transition-all touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
-                  title="WhatsApp"
+                  className="p-2.5 rounded-xl bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/40 hover:bg-[#25D366] hover:text-black transition-all touch-manipulation min-w-[42px] min-h-[42px] flex items-center justify-center"
+                  title="Chat on WhatsApp"
                 >
                   <WhatsappIcon className="w-4 h-4" />
                 </a>
@@ -262,7 +315,7 @@ export const Navbar: React.FC = () => {
                   href={PORTFOLIO_DATA.personal.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[42px] min-h-[42px] flex items-center justify-center"
                   title="LinkedIn"
                 >
                   <LinkedinIcon className="w-4 h-4" />
@@ -271,7 +324,7 @@ export const Navbar: React.FC = () => {
                   href={PORTFOLIO_DATA.personal.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[42px] min-h-[42px] flex items-center justify-center"
                   title="GitHub"
                 >
                   <GithubIcon className="w-4 h-4" />
