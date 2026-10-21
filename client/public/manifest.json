@@ -1,0 +1,18 @@
+{
+  "name": "Maruthappan M — Software Engineer Portfolio",
+  "short_name": "Maruthappan",
+  "description": "Portfolio of Maruthappan M, Aspiring Software Engineer specializing in backend systems, distributed communications, and AI.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

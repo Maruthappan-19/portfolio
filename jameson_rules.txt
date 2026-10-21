@@ -1,0 +1,4 @@
+@keyframes fonts-loading { 
+  0%, 99% { color: transparent; }
+}
+#block-yui_3_17_2_1_1675656189455_90949 .sqs-svg-icon--wrapper > div { transform: scale(var(--si-scale, 1)); }
