@@ -1,0 +1,10 @@
+{
+  "name": "maruthappan-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix client",
+    "dev": "npm run dev --prefix client",
+    "install": "npm install --prefix client --include=dev"
+  }
+}
