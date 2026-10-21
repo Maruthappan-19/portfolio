@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location.pathname]);
 
-  // Lock body scroll when mobile drawer is open
+  // Lock body scroll when mobile drawer is open; unlock when closed
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -48,6 +48,12 @@ export const Navbar: React.FC = () => {
     };
   }, [isOpen]);
 
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsOpen(false);
+    document.body.style.overflow = '';
+  }, [location.pathname]);
+
   const navItems = [
     { name: 'Home', targetId: 'home' },
     { name: 'Work', targetId: 'work' },
@@ -58,15 +64,22 @@ export const Navbar: React.FC = () => {
   ];
 
   const handleNavClick = (targetId: string) => {
+    // Unlock body scroll immediately before navigating
+    document.body.style.overflow = '';
     setIsOpen(false);
+
     if (targetId === 'certifications') {
       navigate('/certifications');
       return;
     }
+
     if (location.pathname === '/') {
       const el = document.getElementById(targetId);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        // Small timeout allows drawer to unmount and body overflow to reset cleanly
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 60);
         window.history.replaceState(null, '', `#${targetId}`);
       }
     } else {
@@ -78,19 +91,20 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled || isOpen
-          ? 'bg-black/90 backdrop-blur-xl border-b border-surface-border/80 shadow-[0_10px_35px_rgba(0,0,0,0.85)]'
+          ? 'bg-black/95 backdrop-blur-xl border-b border-surface-border/80 shadow-[0_10px_35px_rgba(0,0,0,0.85)]'
           : 'bg-transparent'
       }`}
     >
       <div
         className={`max-w-site mx-auto px-4 sm:px-6 md:px-12 flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'h-16' : 'h-20'
+          scrolled || isOpen ? 'h-16' : 'h-16 md:h-20'
         }`}
       >
-        {/* Monogram Brand — Clean minimalist icon matching jamesonnuss.com */}
+        {/* Monogram Brand */}
         <button
+          type="button"
           onClick={() => handleNavClick('home')}
-          className="group focus:outline-none focus:ring-2 focus:ring-accent rounded-xl p-1 text-left shrink-0"
+          className="group focus:outline-none focus:ring-2 focus:ring-accent rounded-xl p-1 text-left shrink-0 touch-manipulation"
           aria-label="Maruthappan M — Home"
         >
           <div className="w-10 h-10 rounded-xl bg-surface-subtle border border-surface-border flex items-center justify-center group-hover:border-accent group-hover:shadow-[0_0_20px_rgba(189,167,115,0.35)] transition-all duration-300">
@@ -111,7 +125,7 @@ export const Navbar: React.FC = () => {
           </div>
         </button>
 
-        {/* Desktop Navigation — All specific categories cleanly presented with Active Pill */}
+        {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-2 xl:gap-3 p-1.5 rounded-full bg-surface-card/60 border border-surface-border/40 backdrop-blur-md" aria-label="Main Navigation">
           {navItems.map((item) => {
             const isActive =
@@ -119,6 +133,7 @@ export const Navbar: React.FC = () => {
               (activeSection === item.targetId || (item.targetId === 'home' && (!activeSection || activeSection === 'home')));
             return (
               <button
+                type="button"
                 key={item.name}
                 onClick={() => handleNavClick(item.targetId)}
                 className={`relative px-4 py-1.5 rounded-full text-xs xl:text-sm font-medium tracking-wide transition-all duration-200 ${
@@ -141,15 +156,17 @@ export const Navbar: React.FC = () => {
           </a>
         </nav>
 
-        {/* Medium Screen View: Essential links + Resume */}
+        {/* Medium Screen View: Essential links + Resume + Menu button */}
         <div className="hidden md:flex lg:hidden items-center gap-4">
           <button
+            type="button"
             onClick={() => handleNavClick('work')}
             className={`text-sm font-medium transition-colors ${activeSection === 'work' ? 'text-accent' : 'text-text-secondary hover:text-white'}`}
           >
             Work
           </button>
           <button
+            type="button"
             onClick={() => handleNavClick('about')}
             className={`text-sm font-medium transition-colors ${activeSection === 'about' ? 'text-accent' : 'text-text-secondary hover:text-white'}`}
           >
@@ -164,43 +181,54 @@ export const Navbar: React.FC = () => {
             Resume
           </a>
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg text-text-secondary hover:text-white hover:bg-surface-subtle"
-            aria-label="Toggle menu"
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-surface-subtle touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
+            aria-expanded={isOpen}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
-            <Menu className="w-5 h-5" />
+            {isOpen ? <X className="w-5 h-5 text-accent" /> : <Menu className="w-5 h-5 text-white" />}
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Burger Button (< 768px) */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded-lg text-text-secondary hover:text-white hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-accent"
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="md:hidden p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-surface-subtle active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-accent relative z-50 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-expanded={isOpen}
-          aria-label="Toggle navigation menu"
+          aria-label={isOpen ? "Close menu" : "Open menu"}
         >
-          {isOpen ? <X className="w-6 h-6 text-accent" /> : <Menu className="w-6 h-6" />}
+          {isOpen ? (
+            <X className="w-6 h-6 text-accent animate-in fade-in duration-150" />
+          ) : (
+            <Menu className="w-6 h-6 text-white animate-in fade-in duration-150" />
+          )}
         </button>
       </div>
 
-      {/* Mobile & Tablet Drawer Menu */}
+      {/* Mobile & Tablet Full-Screen Drawer Menu */}
       {isOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-16 bottom-0 bg-black/98 backdrop-blur-2xl border-t border-surface-border p-6 flex flex-col justify-between overflow-y-auto">
-          <nav className="flex flex-col gap-3 pt-4" aria-label="Mobile Navigation">
+        <div
+          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-black/98 backdrop-blur-2xl border-t border-surface-border p-6 flex flex-col justify-between overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          style={{ height: 'calc(100dvh - 4rem)' }}
+        >
+          <nav className="flex flex-col gap-2 pt-2" aria-label="Mobile Navigation">
             {navItems.map((item) => {
               const isActive = activeSection === item.targetId;
               return (
                 <button
+                  type="button"
                   key={item.name}
                   onClick={() => handleNavClick(item.targetId)}
-                  className={`text-left text-lg font-semibold tracking-tight transition-colors py-2 px-3 rounded-xl border flex items-center justify-between ${
+                  className={`text-left text-lg font-semibold tracking-tight transition-all py-3 px-4 rounded-xl border flex items-center justify-between touch-manipulation min-h-[48px] ${
                     isActive
                       ? 'bg-accent/15 border-accent/40 text-accent'
-                      : 'border-transparent text-text-secondary hover:text-white hover:bg-white/5'
+                      : 'border-transparent text-text-secondary hover:text-white hover:bg-white/5 active:bg-white/10'
                   }`}
                 >
                   <span>{item.name}</span>
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-accent" />}
+                  {isActive && <span className="w-2 h-2 rounded-full bg-accent" />}
                 </button>
               );
             })}
@@ -208,7 +236,7 @@ export const Navbar: React.FC = () => {
               href={PORTFOLIO_DATA.personal.resumePdf}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 mt-4 py-3 rounded-xl bg-accent text-black font-semibold text-sm hover:bg-accent-hover transition-colors"
+              className="inline-flex items-center justify-center gap-2 mt-4 py-3.5 rounded-xl bg-accent text-black font-semibold text-sm hover:bg-accent-hover transition-colors touch-manipulation min-h-[48px] shadow-[0_0_20px_rgba(189,167,115,0.25)]"
             >
               View Resume (PDF) <ArrowUpRight className="w-4 h-4" />
             </a>
@@ -225,7 +253,7 @@ export const Navbar: React.FC = () => {
                   href={PORTFOLIO_DATA.personal.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/30 hover:bg-[#25D366] hover:text-black transition-all"
+                  className="p-2.5 rounded-xl bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/30 hover:bg-[#25D366] hover:text-black transition-all touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
                   title="WhatsApp"
                 >
                   <WhatsappIcon className="w-4 h-4" />
@@ -234,7 +262,7 @@ export const Navbar: React.FC = () => {
                   href={PORTFOLIO_DATA.personal.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors"
+                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
                   title="LinkedIn"
                 >
                   <LinkedinIcon className="w-4 h-4" />
@@ -243,7 +271,7 @@ export const Navbar: React.FC = () => {
                   href={PORTFOLIO_DATA.personal.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors"
+                  className="p-2.5 rounded-xl bg-surface-subtle text-white border border-surface-border hover:border-accent hover:text-accent transition-colors touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center"
                   title="GitHub"
                 >
                   <GithubIcon className="w-4 h-4" />
